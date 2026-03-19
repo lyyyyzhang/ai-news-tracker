@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 产品动态看板 | 硅谷 & 国内一线产品追踪</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #0066cc;
+            --primary-light: #e6f0ff;
+            --accent: #ff6b35;
+            --accent-light: #ffe6d5;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #ffffff;
+            --bg2: #f9fafb;
+            --text: #1f2937;
+            --text2: #6b7280;
+            --border: #e5e7eb;
+        }
+
+        body.dark {
+            --bg: #0f172a;
+            --bg2: #1e293b;
+            --text: #f1f5f9;
+            --text2: #94a3b8;
+            --border: #334155;
+            --primary-light: rgba(0,102,204,0.2);
+            --accent-light: rgba(255,107,53,0.2);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            transition: background .3s, color .3s;
+        }
+
+        /* ── Header ── */
+        .header {
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            padding: .875rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: background .3s, border-color .3s;
+        }
+
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .logo {
+            font-size: 1.35rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            white-space: nowrap;
+        }
+
+        .search-wrap {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .search-wrap svg {
+            position: absolute;
+            left: .75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: var(--text2);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: .5rem 2.25rem .5rem 2.25rem;
+            border: 1px solid var(--border);
+            border-radius: .5rem;
+            background: var(--bg2);
+            color: var(--text);
+            font-size: .875rem;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0,102,204,.1);
+        }
+
+        .search-input::placeholder { color: var(--text2); }
+
+        .search-clear {
+            position: absolute;
+            right: .75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text2);
+            font-size: 1rem;
+            display: none;
+            line-height: 1;
+        }
+
+        .search-clear.on { display: block; }
+
+        .header-btns {
+            display: flex;
+            gap: .75rem;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        .btn {
+            padding: .5rem 1rem;
+            border: none;
+            border-radius: .5rem;
+            cursor: pointer;
+            font-size: .875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            transition: all .2s;
+        }
+
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover:not(:disabled) {
+            background: #0052a3;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,102,204,.3);
+        }
+        .btn-primary:disabled { opacity: .6; cursor: not-allowed; }
+
+        .theme-btn {
+            width: 2.5rem;
+            height: 1.5rem;
+            background: var(--border);
+            border: none;
+            border-radius: 1rem;
+            cursor: pointer;
+            position: relative;
+            transition: background .3s;
+        }
+
+        body.dark .theme-btn { background: var(--primary); }
+
+        .theme-btn::after {
+            content: '☀️';
+            position: absolute;
+            left: .2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: .8rem;
+            transition: all .3s;
+        }
+
+        body.dark .theme-btn::after { content: '🌙'; left: auto; right: .2rem; }
+
+        /* ── Main ── */
+        .main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem 3rem;
+        }
+
+        /* ── Banner ── */
+        .banner {
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: .75rem 1rem;
+            border-radius: .5rem;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            font-size: .875rem;
+        }
+
+        body.dark .banner { color: #60a5fa; }
+        .banner.hidden { display: none; }
+
+        .spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid currentColor;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Search result info ── */
+        .search-info {
+            font-size: .875rem;
+            color: var(--text2);
+            padding: .5rem 1rem;
+            background: var(--primary-light);
+            border-radius: .5rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .search-info.on { display: block; }
+
+        /* ── Stats ── */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: .75rem;
+            padding: 1.25rem;
+            transition: transform .2s, box-shadow .2s;
+        }
+
+        .stat:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0,0,0,.08);
+        }
+
+        body.dark .stat:hover { box-shadow: 0 8px 16px rgba(0,0,0,.3); }
+
+        .stat-label { font-size: .8rem; color: var(--text2); margin-bottom: .4rem; }
+        .stat-value { font-size: 1.75rem; font-weight: 700; color: var(--primary); }
+
+        /* ── Filters ── */
+        .filters {
+            display: flex;
+            gap: .75rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-btn {
+            padding: .4rem .9rem;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            border-radius: .5rem;
+            cursor: pointer;
+            font-size: .875rem;
+            transition: all .2s;
+        }
+
+        .filter-btn:hover { border-color: var(--primary); }
+        .filter-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+        .last-update {
+            margin-left: auto;
+            font-size: .75rem;
+            color: var(--text2);
+        }
+
+        /* ── Content grid ── */
+        .columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1024px) { .columns { grid-template-columns: 1fr; } }
+
+        .col-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+
+        .badge-tag {
+            display: inline-block;
+            background: var(--primary);
+            color: #fff;
+            padding: .2rem .6rem;
+            border-radius: .25rem;
+            font-size: .7rem;
+            font-weight: 600;
+        }
+
+        .badge-tag.domestic { background: var(--success); }
+
+        /* ── News list ── */
+        .news-list { display: flex; flex-direction: column; gap: .875rem; }
+
+        /* ── News card ── */
+        .card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: .75rem;
+            padding: 1.25rem;
+            position: relative;
+            overflow: hidden;
+            animation: fadeUp .3s ease-out;
+            transition: transform .25s, box-shadow .25s;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 4px;
+            background: var(--primary);
+        }
+
+        .card.hot::before { background: var(--accent); }
+
+        .card:hover {
+            transform: translateX(3px);
+            box-shadow: 0 6px 14px rgba(0,0,0,.08);
+        }
+
+        body.dark .card:hover { box-shadow: 0 6px 14px rgba(0,0,0,.3); }
+
+        .card-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: .6rem;
+        }
+
+        .card-title {
+            font-size: .975rem;
+            font-weight: 600;
+            color: var(--text);
+            flex: 1;
+        }
+
+        .card-title mark {
+            background: var(--accent-light);
+            color: inherit;
+            padding: .05rem .15rem;
+            border-radius: .2rem;
+        }
+
+        .card-company { font-size: .8rem; color: var(--text2); margin-bottom: .5rem; }
+
+        .badges { display: flex; gap: .4rem; flex-wrap: wrap; }
+
+        .badge {
+            display: inline-block;
+            padding: .2rem .6rem;
+            border-radius: .25rem;
+            font-size: .7rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .b-primary  { background: var(--primary-light); color: var(--primary); }
+        .b-accent   { background: var(--accent-light);  color: var(--accent); }
+        .b-warning  { background: rgba(245,158,11,.12); color: var(--warning); }
+        .b-danger   { background: rgba(239,68,68,.12);  color: var(--danger); }
+
+        .card-desc {
+            font-size: .85rem;
+            color: var(--text);
+            line-height: 1.55;
+            margin-bottom: .875rem;
+        }
+
+        .card-desc mark {
+            background: var(--accent-light);
+            color: inherit;
+            padding: .05rem .15rem;
+            border-radius: .2rem;
+        }
+
+        .card-foot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: .75rem;
+            color: var(--text2);
+            border-top: 1px solid var(--border);
+            padding-top: .625rem;
+            flex-wrap: wrap;
+            gap: .5rem;
+        }
+
+        .card-time { display: flex; align-items: center; gap: .25rem; }
+
+        .card-foot-right { display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+
+        .orig-link {
+            color: var(--primary);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: .2rem;
+            transition: color .2s;
+        }
+
+        .orig-link:hover { color: #0052a3; text-decoration: underline; }
+
+        /* ── Empty state ── */
+        .empty {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text2);
+        }
+
+        .empty-icon { font-size: 2.5rem; margin-bottom: .75rem; }
+
+        /* ── Error banner ── */
+        .error-banner {
+            background: rgba(239,68,68,.1);
+            color: var(--danger);
+            padding: .75rem 1rem;
+            border-radius: .5rem;
+            margin-bottom: 1rem;
+            font-size: .875rem;
+            display: none;
+        }
+
+        .error-banner.on { display: block; }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar { width: 7px; height: 7px; }
+        ::-webkit-scrollbar-track { background: var(--bg2); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text2); }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .header-inner { flex-wrap: wrap; }
+            .search-wrap  { order: 3; max-width: 100%; flex: 1 1 100%; }
+            .main { padding: 1rem 1rem 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="header-inner">
+        <div class="logo">🚀 AI 产品动态</div>
+        <div class="search-wrap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" class="search-input" id="searchInput" placeholder="搜索新闻标题或描述...">
+            <button class="search-clear" id="searchClear">✕</button>
+        </div>
+        <div class="header-btns">
+            <button class="btn btn-primary" id="refreshBtn">
+                <span>🔄</span><span>刷新</span>
+            </button>
+            <button class="theme-btn" id="themeBtn" title="切换主题"></button>
+        </div>
+    </div>
+</header>
+
+<div class="main">
+    <div class="banner hidden" id="banner">
+        <span class="spinner"></span>
+        <span id="bannerText">正在从后端加载数据...</span>
+    </div>
+
+    <div class="error-banner" id="errorBanner"></div>
+
+    <div class="search-info" id="searchInfo"></div>
+
+    <div class="stats">
+        <div class="stat"><div class="stat-label">硅谷动态</div><div class="stat-value" id="svCount">—</div></div>
+        <div class="stat"><div class="stat-label">国内动态</div><div class="stat-value" id="domCount">—</div></div>
+        <div class="stat"><div class="stat-label">一手信息</div><div class="stat-value" id="fhCount">—</div></div>
+        <div class="stat"><div class="stat-label">今日更新</div><div class="stat-value" id="todayCount">—</div></div>
+    </div>
+
+    <div class="filters">
+        <button class="filter-btn active" data-f="all">全部</button>
+        <button class="filter-btn" data-f="sv">硅谷</button>
+        <button class="filter-btn" data-f="dom">国内</button>
+        <button class="filter-btn" data-f="hot">重磅</button>
+        <span class="last-update" id="lastUpdate">最后更新: —</span>
+    </div>
+
+    <div class="columns">
+        <div>
+            <h2 class="col-title">🌐 硅谷 AI 产品动态 <span class="badge-tag">核心追踪</span></h2>
+            <div class="news-list" id="svList"></div>
+        </div>
+        <div>
+            <h2 class="col-title">🇨🇳 国内 AI 产品动态 <span class="badge-tag domestic">持续关注</span></h2>
+            <div class="news-list" id="domList"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────
+const state = {
+    sv: [], dom: [],
+    filter: 'all',
+    query: '',
+    dark: localStorage.getItem('theme') === 'dark',
+};
+
+// ── Theme ──────────────────────────────────────────────────
+function applyTheme() {
+    document.body.classList.toggle('dark', state.dark);
+}
+applyTheme();
+
+document.getElementById('themeBtn').addEventListener('click', () => {
+    state.dark = !state.dark;
+    localStorage.setItem('theme', state.dark ? 'dark' : 'light');
+    applyTheme();
+});
+
+// ── Search ─────────────────────────────────────────────────
+const searchInput = document.getElementById('searchInput');
+const searchClear = document.getElementById('searchClear');
+
+searchInput.addEventListener('input', e => {
+    state.query = e.target.value;
+    searchClear.classList.toggle('on', state.query.length > 0);
+    render();
+});
+
+searchClear.addEventListener('click', () => {
+    searchInput.value = '';
+    state.query = '';
+    searchClear.classList.remove('on');
+    render();
+});
+
+// ── Filters ────────────────────────────────────────────────
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.filter = btn.dataset.f;
+        render();
+    });
+});
+
+// ── Helpers ────────────────────────────────────────────────
+function escHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+}
+
+function highlight(text, q) {
+    if (!q) return escHtml(text);
+    const re = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    return escHtml(text).replace(re, '<mark>$1</mark>');
+}
+
+function fmtTime(iso) {
+    const d = new Date(iso);
+    if (isNaN(d)) return '时间未知';
+    const diff = Date.now() - d;
+    const m = Math.floor(diff / 60000);
+    const h = Math.floor(diff / 3600000);
+    const day = Math.floor(diff / 86400000);
+    if (m < 1)   return '刚刚';
+    if (m < 60)  return `${m}分钟前`;
+    if (h < 24)  return `${h}小时前`;
+    if (day < 7) return `${day}天前`;
+    return d.toLocaleDateString('zh-CN');
+}
+
+function isToday(iso) {
+    const d = new Date(iso);
+    const t = new Date();
+    return d.getFullYear() === t.getFullYear() &&
+           d.getMonth()    === t.getMonth()    &&
+           d.getDate()     === t.getDate();
+}
+
+// ── Card ───────────────────────────────────────────────────
+function makeCard(item, q) {
+    const hotClass = item.importance === 'high' ? ' hot' : '';
+    const fhBadge  = `<span class="badge b-accent">一手信息</span>`;
+    const hotBadge = item.importance === 'high' ? `<span class="badge b-danger">重磅</span>` : '';
+    const tagBadges = (item.tags || []).map(t => `<span class="badge b-primary">${escHtml(t)}</span>`).join('');
+    const link  = item.link && item.link !== '#'
+        ? `<a class="orig-link" href="${escHtml(item.link)}" target="_blank" rel="noopener">查看原文 ↗</a>`
+        : '';
+
+    return `
+    <div class="card${hotClass}">
+        <div class="card-head">
+            <div>
+                <div class="card-title">${highlight(item.title, q)}</div>
+                <div class="card-company">来自 ${escHtml(item.company)}</div>
+            </div>
+            <div class="badges">${fhBadge}${hotBadge}</div>
+        </div>
+        <div class="card-desc">${highlight(item.description, q)}</div>
+        <div class="card-foot">
+            <div class="card-time">⏱ ${fmtTime(item.time)}</div>
+            <div class="card-foot-right">
+                <div class="badges">${tagBadges}</div>
+                ${link}
+            </div>
+        </div>
+    </div>`;
+}
+
+// ── Render ─────────────────────────────────────────────────
+function applyFilters(list) {
+    let items = list;
+    if (state.query) {
+        const q = state.query.toLowerCase();
+        items = items.filter(n =>
+            n.title.toLowerCase().includes(q) ||
+            n.description.toLowerCase().includes(q) ||
+            n.company.toLowerCase().includes(q)
+        );
+    }
+    if (state.filter === 'hot') items = items.filter(n => n.importance === 'high');
+    return items;
+}
+
+function renderList(elId, rawList) {
+    const items = applyFilters(rawList);
+    const el = document.getElementById(elId);
+    el.innerHTML = items.length
+        ? items.map(i => makeCard(i, state.query)).join('')
+        : `<div class="empty"><div class="empty-icon">📭</div><p>暂无动态</p></div>`;
+}
+
+function render() {
+    // search info
+    const infoEl = document.getElementById('searchInfo');
+    if (state.query) {
+        const total = applyFilters([...state.sv, ...state.dom]).length;
+        infoEl.textContent = `🔍 搜索结果: 找到 ${total} 条相关新闻`;
+        infoEl.classList.add('on');
+    } else {
+        infoEl.classList.remove('on');
+    }
+
+    let sv  = state.sv;
+    let dom = state.dom;
+
+    // filter by tab
+    if (state.filter === 'sv')  dom = [];
+    if (state.filter === 'dom') sv  = [];
+
+    renderList('svList',  sv);
+    renderList('domList', dom);
+
+    // stats
+    const all = [...state.sv, ...state.dom];
+    document.getElementById('svCount').textContent    = state.sv.length;
+    document.getElementById('domCount').textContent   = state.dom.length;
+    document.getElementById('fhCount').textContent    = all.filter(n => n.credibility === 'first-hand').length;
+    document.getElementById('todayCount').textContent = all.filter(n => isToday(n.time)).length;
+}
+
+// ── Load data from backend ─────────────────────────────────
+async function loadData(isRefresh = false) {
+    const btn      = document.getElementById('refreshBtn');
+    const banner   = document.getElementById('banner');
+    const errEl    = document.getElementById('errorBanner');
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner" style="border-color:#fff;border-top-color:transparent"></span><span>加载中...</span>';
+    banner.classList.remove('hidden');
+    document.getElementById('bannerText').textContent = isRefresh
+        ? '正在重新抓取 RSS 数据，请稍候...'
+        : '正在从后端加载数据...';
+    errEl.classList.remove('on');
+
+    try {
+        const url   = isRefresh ? '/api/refresh' : '/api/news';
+        const resp  = await fetch(url);
+
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data  = await resp.json();
+
+        if (isRefresh) {
+            // 刷新完成后再拉一次完整数据
+            const resp2 = await fetch('/api/news');
+            const data2 = await resp2.json();
+            state.sv  = data2.siliconValley || [];
+            state.dom = data2.domestic      || [];
+            document.getElementById('lastUpdate').textContent =
+                '最后更新: ' + new Date(data2.updatedAt).toLocaleTimeString('zh-CN');
+        } else {
+            state.sv  = data.siliconValley || [];
+            state.dom = data.domestic      || [];
+            document.getElementById('lastUpdate').textContent =
+                '最后更新: ' + new Date(data.updatedAt).toLocaleTimeString('zh-CN');
+        }
+
+        render();
+    } catch (err) {
+        console.error(err);
+        errEl.textContent = `⚠️ 无法连接后端服务器 (${err.message})。请确认 server.py 正在运行。`;
+        errEl.classList.add('on');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>🔄</span><span>刷新</span>';
+        banner.classList.add('hidden');
+    }
+}
+
+document.getElementById('refreshBtn').addEventListener('click', () => loadData(true));
+
+// 每 2 小时前端自动触发一次刷新
+setInterval(() => loadData(true), 2 * 60 * 60 * 1000);
+
+// 启动
+loadData();
+</script>
+</body>
+</html>
