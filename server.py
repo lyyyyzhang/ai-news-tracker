@@ -22,19 +22,18 @@ import os
 RSS_SOURCES = {
     "siliconValley": [
         {"url": "https://openai.com/blog/rss.xml",           "source": "OpenAI"},
-        {"url": "https://api.xgo.ing/rss/user/fc16750ce50741f1b1f05ea1fb29436f",      "source": "Huggingface"},
         {"url": "https://blog.google/technology/ai/rss/",    "source": "Google AI"},
         {"url": "https://api.xgo.ing/rss/user/a4bfe44bfc0d4c949da21ebd3f5f42a5",    "source": "Fei-Fei Li"},
         {"url": "https://api.xgo.ing/rss/user/ef7c70f9568d45f4915169fef4ce90b4",    "source": "MetaAI"},
         {"url": "https://api.xgo.ing/rss/user/05f1492e43514dc3862a076d3697c390",    "source": "NVIDIA"},
     ],
     "domestic": [
+        {"url": "https://decemberpei.cyou/rssbox/wechat-jiqizhixin.xml", "source": "机器之心"},
+        {"url": "https://decemberpei.cyou/rssbox/wechat-liangziwei.xml", "source": "量子位"},
         {"url": "https://api.xgo.ing/rss/user/80032d016d654eb4afe741ff34b7643d",       "source": "Qwen"},
         {"url": "https://api.xgo.ing/rss/user/6e8e7b42cb434818810f87bcf77d86fb",       "source": "Hunyuan"},
         {"url": "https://api.xgo.ing/rss/user/68b610deb24b47ae9a236811563cda86",       "source": "DeepSeek"},
         {"url": "https://api.xgo.ing/rss/user/6d7d398dd80b48d79669c92745d32cf6",       "source": "Skywork"},
-        {"url": "https://decemberpei.cyou/rssbox/wechat-jiqizhixin.xml", "source": "机器之心"},
-        {"url": "https://decemberpei.cyou/rssbox/wechat-liangziwei.xml", "source": "量子位"},
     ]
 }
 

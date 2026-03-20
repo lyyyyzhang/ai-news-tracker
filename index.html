@@ -492,7 +492,14 @@
     <div class="stats">
         <div class="stat"><div class="stat-label">硅谷动态</div><div class="stat-value" id="svCount">—</div></div>
         <div class="stat"><div class="stat-label">国内动态</div><div class="stat-value" id="domCount">—</div></div>
-        <div class="stat"><div class="stat-label">一手信息</div><div class="stat-value" id="fhCount">—</div></div>
+        <div class="stat"><div class="stat-label">
+
+
+
+
+
+
+信息</div><div class="stat-value" id="fhCount">—</div></div>
         <div class="stat"><div class="stat-label">今日更新</div><div class="stat-value" id="todayCount">—</div></div>
     </div>
 
@@ -602,7 +609,6 @@ function isToday(iso) {
 // ── Card ───────────────────────────────────────────────────
 function makeCard(item, q) {
     const hotClass = item.importance === 'high' ? ' hot' : '';
-    const fhBadge  = `<span class="badge b-accent">一手信息</span>`;
     const hotBadge = item.importance === 'high' ? `<span class="badge b-danger">重磅</span>` : '';
     const tagBadges = (item.tags || []).map(t => `<span class="badge b-primary">${escHtml(t)}</span>`).join('');
     const link  = item.link && item.link !== '#'
